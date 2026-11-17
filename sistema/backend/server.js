@@ -1,3 +1,7 @@
+// =====================================================
+// server.js - API da Clínica Veterinária (arquivo único)
+// Rodar:  npm install  &&  npm start   (porta 3000)
+// =====================================================
 const express = require('express');
 const cors = require('cors');
 const sqlite3 = require('sqlite3').verbose();
@@ -8,7 +12,8 @@ const path = require('path');
 const app = express();
 const PORT = 3000;
 
-
+// ---------- CORS + JSON ----------
+// CORS liberado para o Live Server (127.0.0.1:5500) conseguir chamar esta API.
 app.use(cors());
 app.use(express.json());
 
@@ -167,14 +172,15 @@ app.post('/pets', async (req, res) => {
 // =====================================================
 // AGENDAMENTOS
 // =====================================================
-// REGRA "Agendamentos (Listagem)": JOIN traz dados do agendamento + pet + tutor,
+// REGRA "Agendamentos (Listagem)": JOIN traz TODOS os dados do agendamento + pet + tutor
+// (o CPF não é exibido porque está criptografado),
 // e o ORDER BY ordena pela data do agendamento.
 app.get('/agendamentos', async (req, res) => {
   try {
     const lista = await all(
       `SELECT a.id, a.data_agendamento, a.servico, a.status,
-              p.nome AS pet, p.especie,
-              t.nome AS tutor, t.telefone
+              p.nome AS pet, p.especie, p.raca, p.data_nascimento,
+              t.nome AS tutor, t.telefone, t.email
        FROM agendamentos a
        JOIN pets p    ON p.id = a.pet_id
        JOIN tutores t ON t.id = p.tutor_id

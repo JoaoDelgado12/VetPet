@@ -1,11 +1,7 @@
-// =====================================================
-// app.js - lógica de TODAS as telas (fetch + DOM)
-// Cada página tem <body data-pagina="..."> e só roda o trecho dela.
-// =====================================================
 const API = 'http://localhost:3000';
 const pagina = document.body.dataset.pagina;
 
-// ---------- Utilitários ----------
+
 const $ = (id) => document.getElementById(id);
 
 // Escapa texto vindo do banco antes de colocar no HTML (evita injeção de HTML)
@@ -15,7 +11,7 @@ function esc(texto) {
   return div.innerHTML;
 }
 
-// Mostra "2026-11-20T14:00" como "20/11/2026 14:00"
+
 function formatarDataHora(iso) {
   return new Date(iso).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
 }
@@ -23,14 +19,14 @@ function formatarData(iso) {
   return iso ? new Date(iso + 'T00:00').toLocaleDateString('pt-BR') : '-';
 }
 
-// Chamada à API com tratamento de erro
+// Tratamento de API
 async function api(caminho, opcoes = {}) {
   const resp = await fetch(API + caminho, {
     headers: { 'Content-Type': 'application/json' },
     ...opcoes,
   });
   const dados = await resp.json().catch(() => ({}));
-  if (!resp.ok) throw new Error(dados.erro || 'Erro na requisição');
+  if (!resp.ok) throw new Error(dados.erro || 'Requisição com erro');
   return dados;
 }
 
@@ -41,25 +37,22 @@ function mostrarErro(idElemento, mensagem) {
 }
 
 // ---------- Sessão (localStorage) ----------
-// Se não estiver logado, qualquer página (exceto o login) volta para o login.
 const usuarioNome = localStorage.getItem('usuarioNome');
 if (pagina !== 'login' && !usuarioNome) {
   window.location.href = 'index.html';
 }
 
 // Nome do usuário no cabeçalho + botão Sair (logout)
-if ($('nomeUsuario')) $('nomeUsuario').textContent = '👤 ' + usuarioNome;
+if ($('nomeUsuario')) $('nomeUsuario').textContent = usuarioNome;
 if ($('boasVindas')) $('boasVindas').textContent = usuarioNome;
 if ($('btnSair')) {
   $('btnSair').addEventListener('click', () => {
-    localStorage.removeItem('usuarioNome'); // logout: apaga a sessão
+    localStorage.removeItem('usuarioNome'); // Apagando sessão
     window.location.href = 'index.html';
   });
 }
 
-// =====================================================
-// LOGIN
-// =====================================================
+// ---------- LOGIN----------
 if (pagina === 'login') {
   // Já logado? vai direto para o dashboard
   if (localStorage.getItem('usuarioNome')) window.location.href = 'dashboard.html';
@@ -80,24 +73,21 @@ if (pagina === 'login') {
   });
 }
 
-// =====================================================
-// TUTORES (busca + cadastro + edição)
-// =====================================================
+// ---------- Sessão de TUTORES ----------
 if (pagina === 'tutores') {
-  let tutores = []; // guarda a lista atual para preencher o formulário na edição
-
+  let tutores = [];
   async function carregarTutores(busca = '') {
     tutores = await api('/tutores?busca=' + encodeURIComponent(busca));
     $('tabelaTutores').innerHTML = tutores.length
       ? tutores.map((t) => `
           <tr>
             <td>${esc(t.nome)}</td>
-            <td>🔒 protegido</td>
+            <td>PROTEGIDO</td>
             <td>${esc(t.telefone)}</td>
             <td>${esc(t.email)}</td>
             <td><button onclick="editarTutor(${t.id})">Editar</button></td>
           </tr>`).join('')
-      : '<tr><td colspan="5">Nenhum tutor encontrado.</td></tr>';
+      : '<tr><td colspan="5">SEM TUTOR.</td></tr>';
   }
 
   // BUSCA: ao confirmar, recarrega a tabela só com os resultados filtrados
@@ -110,7 +100,7 @@ if (pagina === 'tutores') {
     carregarTutores();
   });
 
-  // EDIÇÃO: joga os dados do tutor no formulário (CPF fica vazio = não alterar)
+  // Popular os tutores
   window.editarTutor = (id) => {
     const t = tutores.find((x) => x.id === id);
     $('tutorId').value = t.id;
@@ -122,6 +112,7 @@ if (pagina === 'tutores') {
     $('tituloFormTutor').textContent = 'Editar tutor';
     $('formTutor').scrollIntoView({ behavior: 'smooth' });
   };
+  
 
   function limparFormTutor() {
     $('formTutor').reset();
@@ -132,7 +123,7 @@ if (pagina === 'tutores') {
   }
   $('btnCancelarTutor').addEventListener('click', limparFormTutor);
 
-  // Salvar: se tem id => PUT (editar); se não => POST (cadastrar)
+
   $('formTutor').addEventListener('submit', async (e) => {
     e.preventDefault();
     const id = $('tutorId').value;
@@ -157,9 +148,7 @@ if (pagina === 'tutores') {
   carregarTutores();
 }
 
-// =====================================================
-// PETS (listagem + cadastro com tutor obrigatório)
-// =====================================================
+// ---------- Sessão de PETS ----------
 if (pagina === 'pets') {
   async function carregarPets() {
     const pets = await api('/pets');
@@ -173,7 +162,7 @@ if (pagina === 'pets') {
       </tr>`).join('');
   }
 
-  // Preenche o <select> com os tutores existentes
+  // CARREGAR DROPDOWN
   async function carregarSelectTutores() {
     const tutores = await api('/tutores');
     $('petTutor').innerHTML = '<option value="">Selecione o tutor...</option>' +
@@ -190,7 +179,7 @@ if (pagina === 'pets') {
           especie: $('petEspecie').value,
           raca: $('petRaca').value,
           data_nascimento: $('petNascimento').value,
-          tutor_id: $('petTutor').value, // tutor obrigatório
+          tutor_id: $('petTutor').value,
         }),
       });
       $('formPet').reset();
@@ -205,33 +194,27 @@ if (pagina === 'pets') {
   carregarSelectTutores();
 }
 
-// =====================================================
-// AGENDAMENTOS (listagem ordenada + remarcar data + novo)
-// =====================================================
+// ---------- Sessão de AGENDAMENTOS ----------
 if (pagina === 'agendamentos') {
   let agendamentos = [];
 
   async function carregarAgendamentos() {
-    // A ordenação por data já vem pronta do backend (ORDER BY data_agendamento)
     agendamentos = await api('/agendamentos');
     $('tabelaAgendamentos').innerHTML = agendamentos.map((a) => `
       <tr>
         <td>${formatarDataHora(a.data_agendamento)}</td>
         <td>${esc(a.servico)}</td>
         <td>${esc(a.status)}</td>
-        <td>${esc(a.pet)}</td>
-        <td>${esc(a.especie)}</td>
-        <td>${esc(a.tutor)}</td>
-        <td>${esc(a.telefone)}</td>
+        <td><strong>${esc(a.pet)}</strong><br>${esc(a.especie)} · ${esc(a.raca) || '-'}<br>Nasc.: ${formatarData(a.data_nascimento)}</td>
+        <td><strong>${esc(a.tutor)}</strong><br>${esc(a.telefone)}<br>${esc(a.email)}</td>
         <td><button onclick="editarAgendamento(${a.id})">Alterar data</button></td>
       </tr>`).join('');
   }
 
-  // Abre o formulário de edição (somente a data)
   window.editarAgendamento = (id) => {
     const a = agendamentos.find((x) => x.id === id);
     $('agendamentoId').value = a.id;
-    $('novaData').value = a.data_agendamento; // formato 'AAAA-MM-DDTHH:MM' serve direto no input
+    $('novaData').value = a.data_agendamento;
     $('infoEditar').textContent = `${a.pet} (${a.tutor}) - ${a.servico}`;
     $('secaoEditar').hidden = false;
     $('secaoEditar').scrollIntoView({ behavior: 'smooth' });
@@ -250,7 +233,7 @@ if (pagina === 'agendamentos') {
         body: JSON.stringify({ data_agendamento: $('novaData').value }),
       });
       $('secaoEditar').hidden = true;
-      carregarAgendamentos(); // recarrega: a lista é reordenada com a nova data
+      carregarAgendamentos();
     } catch (erro) {
       mostrarErro('msgEditar', erro.message);
     }

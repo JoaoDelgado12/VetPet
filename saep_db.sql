@@ -1,4 +1,4 @@
-PRAGMA foreign_keys = ON;
+PRAGMA foreign_keys = ON; 
 
 DROP TABLE IF EXISTS agendamentos;
 DROP TABLE IF EXISTS pets;
@@ -39,29 +39,33 @@ CREATE TABLE agendamentos (
     FOREIGN KEY (pet_id) REFERENCES pets(id)
 );
 
--- ---------- Dados iniciais ----------
--- Logins de teste: admin/admin123 | camila/vet123 | recepcao/123456
+
 INSERT INTO usuarios (nome, login, senha) VALUES
-('Administrador',      'admin',    '581c39d98fe224d04c1e5b189a979baa:1aa5f171a973fee298f75bfd59c23b5392da1d3a9c982dbda3ce9d28e348e526'),
-('Dra. Camila Souza',  'camila',   'de23c49b5a182acb93434a1991a6bb82:965356ecc440f38461cf20e2ea84c3f9c088239d8efcc91a54d8b2bc3367d1ed'),
-('Recepção',           'recepcao', '979e7b369feb4eb1cf22490676f49a78:387a6b3fc5c8bddb809f47c588ed403c54920888ad75a7754ce11ca1380d59ca');
+('Roberto Gerente',     'gerente',   '3f9508aefb055e3a9f1808ec74f5661d:5c9fe6271fa8e5e8d2e1ec7e3074cc1576a1a3f47362cb12ea932dceb73f57ed'),
+('Dr. Felipe Nogueira', 'vet',       '6a81b02c782b6e02746219516ffcae44:911a991b2848c64bfb93039d3d3c8b2dd19e8b5867f601cf570aa32e19873588'),
+('Juliana Atendente',   'atendente', '5bcc065f1399587018412686332efe74:bceb89279565601dba6f4124e3b333bf2dcc617c7831f9c19568e61a6d46cb00');
 
 INSERT INTO tutores (nome, cpf, telefone, email) VALUES
-('Ana Beatriz Lima',      'bd0b95150a9f3d0b8cf553176c6f5847:7bff2c907e4718463b010753d52c0eff7ebe5382959266ff1c1ff39c16ef0de5', '(71) 99111-1111', 'ana.lima@email.com'),
-('Carlos Eduardo Santos', '83c8ff3f8347e6d55cbdc3365fc07a46:e078b1d1e91a1fc3a6146f1b1b4d9fca66a2d3e92a8e2be103a5757a92e38204', '(71) 99222-2222', 'carlos.santos@email.com'),
-('Mariana Oliveira',      '66f69e26d865fda1d0724d7eb4ef7363:5551bcb7b6278027238560181a51a88d509a6cabc20cb5794f16b73ec0082665', '(71) 99333-3333', 'mariana.oliveira@email.com'),
-('João Pedro Almeida',    '081db88bd5e9041a3d429a7e235be5bb:65cbd69e4b53222b0bdc1faa081313ae0376e208458ad24b0c6294f828b6f1b7', '(71) 99444-4444', 'joao.almeida@email.com');
-
+('Fernanda Ribeiro',    '137ebabe41e6fdd39df66b869f57af6b:fd944146d352ded89bf36538af4514595132af4f08ddf6cf01c93d9554dd4d84', '(71) 98811-0001', 'fernanda.ribeiro@email.com'),
+('Lucas Monteiro',      'b003f1ec35c005bd4ea59cfefb3d8663:81ca71a1d47eb87bb743e00a798407849a7f68c9ddf507da622fab9d1af0d148', '(71) 98822-0002', 'lucas.monteiro@email.com'),
+('Patrícia Cardoso',    '35fa2ce43657678f176c35688e287333:6247aa04cc5594fa6548fdce247e5d8f1eacf492e90fcb149e6df4ba570c6412', '(71) 98833-0003', 'patricia.cardoso@email.com'),
+('Rafael Teixeira',     '4a0ee56a666a59022b0f00a9ffcfa421:0d324ed0b48a118b0145951a0f356916a113c56bc33beec88fafc87fab20efe9', '(71) 98844-0004', 'rafael.teixeira@email.com'),
+('Beatriz Nascimento',  '40a6afbe23a9be35d46920a67c4a577c:ca9c5ca8bb116f154e0b3416e73c72292f3e9510329200a76dc98ce7a576a833', '(71) 98855-0005', 'beatriz.nascimento@email.com');
+ 
 INSERT INTO pets (nome, especie, raca, data_nascimento, tutor_id) VALUES
-('Thor',  'Cachorro', 'Golden Retriever', '2020-03-15', 1),
-('Mel',   'Gato',     'Siamês',           '2021-07-02', 2),
-('Bob',   'Cachorro', 'Vira-lata',        '2019-11-20', 3),
-('Luna',  'Gato',     'Persa',            '2022-01-10', 1),
-('Nina',  'Coelho',   'Mini Lop',         '2023-05-05', 4);
-
+('Rex',     'Cachorro', 'Pastor Alemão', '2018-06-12', 1),
+('Mimi',    'Gato',     'Maine Coon',    '2021-02-28', 2),
+('Pipoca',  'Cachorro', 'Shih Tzu',      '2022-09-09', 3),
+('Simba',   'Gato',     'Laranja SRD',   '2020-12-01', 1),
+('Zeca',    'Papagaio', 'Verdadeiro',    '2016-04-17', 4),
+('Docinho', 'Hamster',  'Sírio',         '2024-01-20', 5);
+ 
+-- Inseridos fora de ordem de propósito: a listagem ordena por data_agendamento.
 INSERT INTO agendamentos (pet_id, data_agendamento, servico, status) VALUES
-(3, '2026-12-05T10:00', 'Vacinação antirrábica', 'Agendado'),
-(1, '2026-11-18T09:30', 'Consulta de rotina',    'Agendado'),
-(5, '2026-11-25T15:00', 'Check-up geral',        'Agendado'),
-(2, '2026-11-20T14:00', 'Banho e tosa',          'Agendado'),
-(4, '2026-11-12T11:00', 'Vermifugação',          'Concluído');
+(3, '2026-12-10T16:30', 'Banho e tosa',            'Agendado'),
+(1, '2026-11-19T08:00', 'Consulta de rotina',      'Agendado'),
+(5, '2026-11-30T13:00', 'Avaliação de plumagem',   'Agendado'),
+(2, '2026-11-17T10:30', 'Vacina V4 felina',        'Agendado'),
+(4, '2026-11-10T09:00', 'Castração (retorno)',     'Concluído'),
+(6, '2026-12-03T11:15', 'Check-up geral',          'Agendado'),
+(1, '2026-12-15T14:45', 'Exame de sangue',         'Agendado');
